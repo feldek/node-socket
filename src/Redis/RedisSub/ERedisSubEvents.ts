@@ -1,6 +1,6 @@
 enum ERedisSubEvents {
  subscribeToRoom = 'subscribeToRoom',
- emitToRoom = 'emitToRoom',
+ sendToRoom = 'sendToRoom',
 }
 
 export { ERedisSubEvents };

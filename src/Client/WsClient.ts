@@ -5,20 +5,6 @@ import { TSocketHandlePayload } from '../WsServer/Type/TSocketHandlePayload';
 
 class WsClient {
  private connection: WebSocket;
- //
- // private get connection(): WebSocket {
- //     const connection = this.connection;
- //
- //     if (!connection) {
- //         throw Error("Connection hasn't called")
- //     }
- //
- //     return connection
- // }
- //
- // private set connection(ws: WebSocket) {
- //     this.connection = ws
- // }
 
  constructor(
   private readonly host: string,
@@ -30,7 +16,12 @@ class WsClient {
  connect() {
   this.connection.onmessage = (data) => {
    try {
-    console.log('Data WS event', data);
+    // console.log('Data WS event', JSON.parse(data.toString()));
+
+    // const str = Buffer.from(data).toString();
+    // console.log('Received message:', str);
+    //@ts-ignore
+    console.log(JSON.parse(data.data));
    } catch (error) {
     console.error(error);
    }

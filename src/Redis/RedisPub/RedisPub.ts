@@ -22,10 +22,7 @@ class RedisPub extends RedisBase implements IGetRedisInstance {
   * @param payload
   */
  emit<T extends ERoomName>(targetId: string, roomName: T, socketSessionId: string, payload: any) {
-  return this.redis.publish(
-   this.generatePubSubKeyCurrentSession(targetId, roomName, socketSessionId),
-   JSON.stringify(payload),
-  );
+  return this.redis.publish(this.generatePubSubKey(targetId, roomName), JSON.stringify(payload));
  }
 }
 

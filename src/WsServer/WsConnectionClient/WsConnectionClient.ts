@@ -1,16 +1,9 @@
-import { Server, WebSocket, WebSocketServer } from 'ws';
+import { WebSocket } from 'ws';
 import { TSocketHandlePayload } from '../Type/TSocketHandlePayload';
 import { ESocketHandleEvent } from '../../Constant/Enum/ESocketHandleEvent';
 import { handleSocketEvents } from '../HandleEvents/HandleSocketEvents';
 
-// class WsConnectionClient<USER_DATA extends Record<string, any>> {
 class WsConnectionClient {
- // protected data: Partial<USER_DATA> = {};
- //
- // updateData(updatedData: Partial<USER_DATA>) {
- //  this.data = { ...this.data, ...updatedData };
- // }
-
  constructor(
   private readonly ws: WebSocket,
   protected readonly userId: string,

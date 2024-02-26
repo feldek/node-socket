@@ -1,65 +1,56 @@
-import { Server, WebSocket, WebSocketServer } from 'ws';
-import { Server as HttpServer } from 'http';
-import { TSocketHandlePayload } from './Type/TSocketHandlePayload';
-import { ESocketHandleEvent } from '../Constant/Enum/ESocketHandleEvent';
-import { handleSocketEvents } from './HandleEvents/HandleSocketEvents';
-import { redisSub } from '../Redis/RedisSub/RedisSub';
-import { ERoomName } from '../Constant/Enum/ERoomName';
-import { WsConnectionClient } from './WsConnectionClient/WsConnectionClient';
-import { v4 as uuid } from 'uuid';
+import { TemplatedApp } from 'uWebSockets.js';
+import { TWsServer } from './Type/WsServer';
 
 type TEventHandler<Req, Res> = (payload: Req) => Promise<Res>;
 
 type TSocketCallback<Res> = (res: Promise<void>) => void;
 
 class WsServer {
- public server: Server;
-
- constructor(server: HttpServer) {
-  this.server = new WebSocketServer({ server });
- }
-
- // onSocketEventFactory(ws: WebSocket) {
- //     return <T extends ESocketHandleEvent>(
- //         event: T,
- //         callback: (payload: TSocketHandleEventPayloadMap[T]) => void | Promise<void>) =>
- //         ws.on("message", async (message) => {
- //             try {
- //                 const msg = JSON.parse(message.toString()) as TSocketHandlePayload;
- //
- //                 //@ts-ignore
- //                 handleSocketEvents[msg.data.event](msg.data.payload);
- //                 console.log("ws onMessage", msg)
- //
- //             } catch (error) {
- //                 console.log("error server on", error)
- //             }
- //         });
- // }
+ constructor(readonly server: TemplatedApp) {}
 
  public async connected() {
-  console.log('Ws Server started');
+  this.server.ws('/*', {
+   upgrade: (res, req, context) => {
+    // request was made to open websocket, res req have all properties for request, cookies etc
+    // add code here to determine if ws request should be accepted or denied
+    // deny request with "res.writeStatus('401').end()" see issue #367
 
-  this.server.on('connection', async (ws, req) => {
-   const headerProtocol = req.headers['sec-websocket-protocol'] as string;
-   const header = headerProtocol.split(',');
-   const userId = header[0];
-   const token = header[1];
-   const socketSessionId = uuid();
+    const headerProtocol = req.getHeader('sec-websocket-protocol');
+    const header = headerProtocol.split(',');
+    const userId = header[0];
+    const token = header[1];
+    console.log(headerProtocol);
 
-   redisSub.listen(userId, ERoomName.room1);
-   redisSub.listen('userId', ERoomName.room2);
+    res.upgrade(
+     // upgrade to websocket
+     { ip: res.getRemoteAddress(), id: userId }, // 1st argument sets which properties to pass to ws object, in this case ip address
+     req.getHeader('sec-websocket-key'),
+     req.getHeader('sec-websocket-protocol'),
+     req.getHeader('sec-websocket-extensions'), // 3 headers are used to setup websocket
+     context, // also used to setup websocket
+    );
+   },
 
-   //accepts msg from ws client
-   const wsConnectionClient = new WsConnectionClient(ws, userId, socketSessionId);
+   // Open connection event
+   open: (ws) => {
+    console.log(ws.getUserData().id);
 
-   wsConnectionClient.onMessage();
-   wsConnectionClient.onError();
-   wsConnectionClient.onClose();
-  });
+   },
 
-  this.server.on('error', (err) => {
-   console.error('server onError', err);
+   // Incoming message event
+   message: (ws: TWsServer, message: ArrayBuffer, isBinary: boolean) => {
+    const str = Buffer.from(message).toString();
+    console.log('Received message:', str);
+
+    // Echo the message back to the client
+    // ws.send(Buffer.from(str));
+    ws.send(str);
+   },
+
+   // Close connection event
+   close: (ws: TWsServer, code: number, message: ArrayBuffer) => {
+    console.log('A client disconnected');
+   },
   });
  }
 
@@ -67,6 +58,8 @@ class WsServer {
  public publish(message: string) {
   try {
    const msg = JSON.parse(message);
+
+   // ws.send(Buffer.from(str));
   } catch (error) {
    console.error('ws-publish', error);
   }

@@ -1,19 +1,20 @@
 import { TRedisBase } from './TRedisType';
-import { ERoomName } from '../Constant/Enum/ERoomName';
+import { TRedisEvent, TRedisJoinToRoomEvent, TRedisSendEvent } from './Types/TRedisEvent';
+import { ERedisSubEvents } from './RedisSub/ERedisSubEvents';
 
 abstract class RedisBase {
  protected constructor(readonly redis: TRedisBase) {}
 
- protected generatePubSubKeyCurrentSession<T extends ERoomName>(
-  userId: string,
-  event: T,
-  socketSessionId: string,
- ) {
-  return `${userId}.${event}.${socketSessionId}`;
+ isJoinToRoomEvent(payload: TRedisEvent): payload is TRedisJoinToRoomEvent {
+  return payload.event === ERedisSubEvents.subscribeToRoom;
  }
 
- protected generatePubSubKeyForAllSessions<T extends ERoomName>(userId: string, event: T) {
-  return `${userId}.${event}.*`;
+ isSendToRoomEvent(payload: TRedisEvent): payload is TRedisSendEvent {
+  return payload.event === ERedisSubEvents.sendToRoom;
+ }
+
+ protected generatePubSubKey(userId: string, event: string) {
+  return `${userId}.${event}`;
  }
 }
 

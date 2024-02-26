@@ -9,7 +9,7 @@ const handleRedisEvents = {
 
   redisSub.listen(targetId, event);
  },
- [ERedisSubEvents.emitToRoom]: (params: {
+ [ERedisSubEvents.sendToRoom]: (params: {
   targetId: string;
   event: ERoomName;
   payload: any;

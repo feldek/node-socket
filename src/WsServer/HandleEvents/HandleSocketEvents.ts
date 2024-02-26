@@ -2,7 +2,6 @@ import { ESocketHandleEvent } from '../../Constant/Enum/ESocketHandleEvent';
 import { TSocketHandleEventPayloadMap } from '../../Constant/Enum/TSocketHandleEventPayloadMap';
 import { redisPub } from '../../Redis/RedisPub/RedisPub';
 import { ERoomName } from '../../Constant/Enum/ERoomName';
-import { redisSub } from '../../Redis/RedisSub/RedisSub';
 
 const firstFunction = () => console.log('immortal');
 const secondFunction = () => console.log('temporary');
@@ -38,7 +37,7 @@ const handleSocketEvents: THandleSocketEvents = {
  ) => {
   console.log(`handle socket events: ${ESocketHandleEvent.handle2}`, payload);
 
-  redisSub.unsubCurrent('userId', ERoomName.room2, sessionId);
+  // redisSub.unsubCurrent('userId', ERoomName.room2, sessionId);
   // cbArray.push(secondFunction);
   // runCbArray();
   // redisSub.unsubCurrent(userId, ERoomName.room1, sessionId);
