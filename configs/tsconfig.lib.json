@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.core.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "resolve-pathname": [
+        "./@types/resolve-pathname"
+      ],
+      "@sb/redis": [
+        "../packages/libraries/redis/src/index.ts"
+      ]
+    }
+  },
+  "references": [
+    {
+      "path": "../packages/libraries/stub/tsconfig.json"
+    }
+  ]
+}
