@@ -2,8 +2,8 @@ import { TRedisBase } from './TRedisType';
 import {
   TRedisCurrentRoomJoinToTargetRoomEvent,
   TRedisEvent,
-  TRedisLeaveTargetRoomFromCurrentRoomEvent,
-  TRedisSendEvent,
+  TRedisKickTargetRoomFromCurrentRoomEvent,
+  TRedisSendToRoomEvent,
 } from './Types/TRedisEvent';
 import { ERedisSubEvents } from './RedisSub/ERedisSubEvents';
 
@@ -18,11 +18,11 @@ abstract class RedisBase {
 
   isLeaveTargetRoomFromCurrentRoomEvent(
     payload: TRedisEvent,
-  ): payload is TRedisLeaveTargetRoomFromCurrentRoomEvent {
-    return payload.event === ERedisSubEvents.leaveTargetRoomFromCurrentRoom;
+  ): payload is TRedisKickTargetRoomFromCurrentRoomEvent {
+    return payload.event === ERedisSubEvents.kickTargetRoomFromCurrentRoom;
   }
 
-  isSendToRoomEvent(payload: TRedisEvent): payload is TRedisSendEvent {
+  isSendToRoomEvent(payload: TRedisEvent): payload is TRedisSendToRoomEvent {
     return payload.event === ERedisSubEvents.sendToRoom;
   }
 

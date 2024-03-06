@@ -7,6 +7,7 @@ import { TWsServer } from '../../WsServer/Type/WsServer';
 import { redisPub } from '../RedisPub/RedisPub';
 
 const redisSubClient = createRedisClient(getRedisConfig('redisSub'));
+
 type TRedisEventHandler = (payload: any) => void;
 
 type TListener = { socketId: string; channelListener: TRedisEventHandler };
@@ -15,7 +16,6 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
   /**
    * @key - roomName
    */
-  // listeners: Record<string, TListener[]> = {};
   listeners: { [key: string]: TListener[] } = {};
 
   constructor() {
@@ -26,10 +26,8 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
     return this.redis;
   }
 
-  async joinToRoom(ws: TWsServer, roomName: string) {
+  async joinToRoom(ws: TWsServer, roomName: string, socketId: string) {
     const roomListeners = this.listeners[roomName] || [];
-
-    const socketId = ws.getUserData().socketId;
 
     // callback for redis sub channel
     const channelListener = this.generateChannelListener(ws, roomName);
@@ -47,11 +45,11 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
     await this.setListeners(roomName, updatedListeners);
   }
 
-  getListeners(roomName: string): TListener[] {
+  private getListeners(roomName: string): TListener[] {
     return this.listeners[roomName] || [];
   }
 
-  async setListeners(roomName: string, listeners: TListener[]) {
+  private async setListeners(roomName: string, listeners: TListener[]) {
     this.listeners[roomName] = listeners;
 
     //unsubscribe from channel, if this channel doesn't have listeners

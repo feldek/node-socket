@@ -3,7 +3,12 @@ import { createRedisClient } from '../RedisClient';
 import { IGetRedisInstance } from '../TRedisType';
 import { RedisBase } from '../RedisBase';
 import { ERoomName } from '../../Constant/Enum/ERoomName';
-import { TRedisEvent } from '../Types/TRedisEvent';
+import {
+  TRedisCurrentRoomJoinToTargetRoomEvent,
+  TRedisEvent,
+  TRedisKickTargetRoomFromCurrentRoomEvent,
+  TRedisSendToRoomEvent,
+} from '../Types/TRedisEvent';
 
 const redisPubClient = createRedisClient(getRedisConfig('redisPub'));
 
@@ -17,17 +22,27 @@ class RedisPub extends RedisBase implements IGetRedisInstance {
   }
 
   /**
-   *
-   * @param targetId - userId or clientId, it depends on room
    * @param roomName
    * @param payload
    */
   emit(roomName: string, payload: TRedisEvent) {
     return this.redis.publish(roomName, JSON.stringify(payload));
   }
-  // emit<T extends ERoomName>(targetId: string, roomName: T, payload: TRedisEvent) {
-  //   return this.redis.publish(this.generatePubSubKey(targetId, roomName), JSON.stringify(payload));
-  // }
+
+  joinCurrentRoomToTargetRoom(roomName: string, payload: TRedisCurrentRoomJoinToTargetRoomEvent) {
+    return this.emit(roomName, payload);
+  }
+
+  sendToRoom(roomName: string, payload: TRedisSendToRoomEvent) {
+    return this.emit(roomName, payload);
+  }
+
+  kickTargetRoomFromCurrentRoom(
+    roomName: string,
+    payload: TRedisKickTargetRoomFromCurrentRoomEvent,
+  ) {
+    return this.emit(roomName, payload);
+  }
 
   async isActiveChannel(roomName: string): Promise<boolean> {
     const activeChannels = await this.redis.pubSubChannels(roomName);

@@ -1,6 +1,6 @@
 import { ERedisSubEvents } from '../RedisSub/ERedisSubEvents';
 
-type TRedisSendEvent = {
+type TRedisSendToRoomEvent = {
   id?: string;
   event: ERedisSubEvents.sendToRoom;
   payload: any;
@@ -12,20 +12,20 @@ type TRedisCurrentRoomJoinToTargetRoomEvent = {
   payload: { roomName: string };
 };
 
-type TRedisLeaveTargetRoomFromCurrentRoomEvent = {
+type TRedisKickTargetRoomFromCurrentRoomEvent = {
   id?: string;
-  event: ERedisSubEvents.leaveTargetRoomFromCurrentRoom;
+  event: ERedisSubEvents.kickTargetRoomFromCurrentRoom;
   payload: { roomName: string };
 };
 
 type TRedisEvent =
-  | TRedisSendEvent
+  | TRedisSendToRoomEvent
   | TRedisCurrentRoomJoinToTargetRoomEvent
-  | TRedisLeaveTargetRoomFromCurrentRoomEvent;
+  | TRedisKickTargetRoomFromCurrentRoomEvent;
 
 export type {
   TRedisEvent,
-  TRedisSendEvent,
+  TRedisSendToRoomEvent,
   TRedisCurrentRoomJoinToTargetRoomEvent,
-  TRedisLeaveTargetRoomFromCurrentRoomEvent,
+  TRedisKickTargetRoomFromCurrentRoomEvent,
 };

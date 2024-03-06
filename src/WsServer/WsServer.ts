@@ -5,6 +5,11 @@ import { redisPub } from '../Redis/RedisPub/RedisPub';
 import { delay } from '../Utils/Delay';
 import { v4 as uuid } from 'uuid';
 import { ERedisSubEvents } from '../Redis/RedisSub/ERedisSubEvents';
+import { Room } from '../Room/Room';
+
+const room1 = new Room('room1');
+
+const room2 = new Room('room1');
 
 class WsServer {
   constructor(readonly server: TemplatedApp) {}
@@ -34,24 +39,23 @@ class WsServer {
 
       // Open connection event
       open: async (ws: TWsServer) => {
-        const roomName = 'testRoom';
-        const roomName2 = 'testRoom2';
+        await room1.joinSocketToRoom(ws, ws.getUserData().socketId);
 
-        await redisSub.addListener(ws, roomName);
+        await delay(100);
+        await room1.sendToRoom({ test: 'to room1 message' });
 
-        await delay(1_000);
+        await room1.joinToTargetRoom({ roomName: room2.name });
 
-        await redisPub.emit(roomName, {
-          event: ERedisSubEvents.currentRoomJoinToTargetRoom,
-          payload: { roomName: roomName2 },
-        });
+        await delay(100);
 
-        await delay(1_000);
+        await room2.sendToRoom({ test: 'to room2 message' });
 
-        await redisPub.emit(roomName2, {
-          event: ERedisSubEvents.sendToRoom,
-          payload: { roomName: 'subscribe in roomName2' },
-        });
+        await room2.kickTargetRoom({ roomName: room1.name });
+        // await room1.leaveFromRoom(ws.getUserData().socketId);
+
+        await room1.sendToRoom({ test: 'to room1 message' });
+        await room2.sendToRoom({ test: 'to room2 message' });
+
         // await redisPub.redis.publish(roomName, JSON.stringify({ emit: 2 }));
 
         // await delay(1_000);
