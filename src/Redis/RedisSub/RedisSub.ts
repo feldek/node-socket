@@ -26,7 +26,7 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
     return this.redis;
   }
 
-  async joinToRoom(ws: TWsServer, roomName: string, socketId: string) {
+  async joinSocket(ws: TWsServer, roomName: string, socketId: string) {
     const roomListeners = this.listeners[roomName] || [];
 
     // callback for redis sub channel
@@ -37,7 +37,7 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
     await this.subscribeChannel(roomName);
   }
 
-  async leaveFromRoom(roomName: string, socketId: string) {
+  async leaveSocket(roomName: string, socketId: string) {
     const roomListeners = this.getListeners(roomName);
 
     const updatedListeners = roomListeners.filter((it) => socketId !== it.socketId);
@@ -63,24 +63,21 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
       try {
         const payload = JSON.parse(message) as TRedisEvent;
 
-        if (this.isCurrentRoomJoinToTargetRoomEvent(payload)) {
-          // all sockets from currentRoomName we should join to targetRoomName
+        if (this.isTargetRoomJoinToCurrentRoomEvent(payload)) {
+          // all sockets from targetRoomName we should join to currentRoomName
           const targetRoomName = payload.payload.roomName;
 
-          /**
-           * 1) take listeners, that need join to targetRoomName
-           * 2) add it to listeners targetRoomName
-           */
-          const listenersAlreadyJoinedInTargetRoom = this.listeners[targetRoomName] || [];
+          const currentRoomListeners = this.listeners[currentRoomName] || [];
 
-          const listenersNeedJoinToTargetRoom = this.listeners[currentRoomName] || [];
+          const targetRoomListeners = this.listeners[targetRoomName] || [];
 
-          this.listeners[targetRoomName] = [
-            ...listenersAlreadyJoinedInTargetRoom,
-            ...listenersNeedJoinToTargetRoom,
-          ];
+          this.listeners[currentRoomName] = [...currentRoomListeners, ...targetRoomListeners];
 
-          await this.subscribeChannel(targetRoomName);
+          if (this.listeners[currentRoomName].length === 0) {
+            return;
+          }
+
+          await this.subscribeChannel(currentRoomName);
 
           return;
         }
@@ -113,6 +110,12 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
         console.error(err);
       }
     };
+  }
+
+  deleteListeners(socketId: string) {
+    for (const roomName in this.listeners) {
+      this.leaveSocket(roomName, socketId);
+    }
   }
 
   private async subscribeChannel(roomName: string) {

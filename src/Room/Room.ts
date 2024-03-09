@@ -20,16 +20,16 @@ class Room {
   }
 
   joinSocketToRoom(ws: TWsServer, socketId: string) {
-    return this.sub.joinToRoom(ws, this.roomName, socketId);
+    return this.sub.joinSocket(ws, this.roomName, socketId);
   }
 
   leaveFromRoom(socketId: string) {
-    return this.sub.leaveFromRoom(this.roomName, socketId);
+    return this.sub.leaveSocket(this.roomName, socketId);
   }
 
   joinToTargetRoom(payload: TRedisCurrentRoomJoinToTargetRoomEvent['payload']) {
     return this.pub.joinCurrentRoomToTargetRoom(this.roomName, {
-      event: ERedisSubEvents.currentRoomJoinToTargetRoom,
+      event: ERedisSubEvents.targetRoomJoinToCurrentRoom,
       payload,
     });
   }
@@ -43,7 +43,7 @@ class Room {
 
   kickTargetRoom(payload: TRedisKickTargetRoomFromCurrentRoomEvent['payload']) {
     return this.pub.kickTargetRoomFromCurrentRoom(this.roomName, {
-      event: ERedisSubEvents.kickTargetRoomFromCurrentRoom,
+      event: ERedisSubEvents.leaveTargetRoomFromCurrentRoom,
       payload,
     });
   }

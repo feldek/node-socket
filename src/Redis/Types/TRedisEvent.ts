@@ -8,13 +8,13 @@ type TRedisSendToRoomEvent = {
 
 type TRedisCurrentRoomJoinToTargetRoomEvent = {
   id?: string;
-  event: ERedisSubEvents.currentRoomJoinToTargetRoom;
+  event: ERedisSubEvents.targetRoomJoinToCurrentRoom;
   payload: { roomName: string };
 };
 
 type TRedisKickTargetRoomFromCurrentRoomEvent = {
   id?: string;
-  event: ERedisSubEvents.kickTargetRoomFromCurrentRoom;
+  event: ERedisSubEvents.leaveTargetRoomFromCurrentRoom;
   payload: { roomName: string };
 };
 
