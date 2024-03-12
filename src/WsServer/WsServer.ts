@@ -1,15 +1,12 @@
 import { TemplatedApp } from 'uWebSockets.js';
 import { TWsServer } from './Type/WsServer';
-import { redisSub } from '../Redis/RedisSub/RedisSub';
-import { redisPub } from '../Redis/RedisPub/RedisPub';
 import { delay } from '../Utils/Delay';
 import { v4 as uuid } from 'uuid';
-import { ERedisSubEvents } from '../Redis/RedisSub/ERedisSubEvents';
 import { Room } from '../Room/Room';
 
 const room1 = new Room('room1');
 
-const room2 = new Room('room1');
+const room2 = new Room('room2');
 
 class WsServer {
   constructor(readonly server: TemplatedApp) {}
@@ -42,19 +39,19 @@ class WsServer {
         await room1.joinSocketToRoom(ws, ws.getUserData().socketId);
 
         await delay(100);
-        await room1.sendToRoom({ test: 'to room1 message' });
+        await room1.sendToRoom({ test: '1: to room1 message' });
 
-        await room1.joinToTargetRoom({ roomName: room2.name });
+        await room2.joinRoom({ roomName: room1.name });
 
         await delay(100);
 
-        await room2.sendToRoom({ test: 'to room2 message' });
+        await room2.sendToRoom({ test: '2: to room2 message' });
 
-        await room2.kickTargetRoom({ roomName: room1.name });
+        await room2.leaveRoom({ roomName: room1.name });
         // await room1.leaveFromRoom(ws.getUserData().socketId);
 
-        await room1.sendToRoom({ test: 'to room1 message' });
-        await room2.sendToRoom({ test: 'to room2 message' });
+        await room1.sendToRoom({ test: '3: to room1 message' });
+        await room2.sendToRoom({ test: '4: to room2 message' });
 
         // await redisPub.redis.publish(roomName, JSON.stringify({ emit: 2 }));
 

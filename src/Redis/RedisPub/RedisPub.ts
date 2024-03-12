@@ -2,7 +2,6 @@ import { getRedisConfig } from '../RedisConfig';
 import { createRedisClient } from '../RedisClient';
 import { IGetRedisInstance } from '../TRedisType';
 import { RedisBase } from '../RedisBase';
-import { ERoomName } from '../../Constant/Enum/ERoomName';
 import {
   TRedisCurrentRoomJoinToTargetRoomEvent,
   TRedisEvent,
@@ -29,7 +28,7 @@ class RedisPub extends RedisBase implements IGetRedisInstance {
     return this.redis.publish(roomName, JSON.stringify(payload));
   }
 
-  joinCurrentRoomToTargetRoom(roomName: string, payload: TRedisCurrentRoomJoinToTargetRoomEvent) {
+  joinRoom(roomName: string, payload: TRedisCurrentRoomJoinToTargetRoomEvent) {
     return this.emit(roomName, payload);
   }
 
@@ -37,10 +36,7 @@ class RedisPub extends RedisBase implements IGetRedisInstance {
     return this.emit(roomName, payload);
   }
 
-  kickTargetRoomFromCurrentRoom(
-    roomName: string,
-    payload: TRedisKickTargetRoomFromCurrentRoomEvent,
-  ) {
+  leaveRoom(roomName: string, payload: TRedisKickTargetRoomFromCurrentRoomEvent) {
     return this.emit(roomName, payload);
   }
 

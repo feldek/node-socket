@@ -1,6 +1,6 @@
 enum ERedisSubEvents {
-  targetRoomJoinToCurrentRoom = 'currentRoomJoinToTargetRoom',
-  leaveTargetRoomFromCurrentRoom = 'kickTargetRoomFromCurrentRoom',
+  joinRoom = 'currentRoomJoinToTargetRoom',
+  leaveRoom = 'kickTargetRoomFromCurrentRoom',
   sendToRoom = 'sendToRoom',
 }
 

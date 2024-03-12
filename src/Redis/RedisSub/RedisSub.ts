@@ -45,6 +45,12 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
     await this.setListeners(roomName, updatedListeners);
   }
 
+  deleteListeners(socketId: string) {
+    for (const roomName in this.listeners) {
+      this.leaveSocket(roomName, socketId);
+    }
+  }
+
   private getListeners(roomName: string): TListener[] {
     return this.listeners[roomName] || [];
   }
@@ -63,41 +69,43 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
       try {
         const payload = JSON.parse(message) as TRedisEvent;
 
-        if (this.isTargetRoomJoinToCurrentRoomEvent(payload)) {
-          // all sockets from targetRoomName we should join to currentRoomName
+        if (this.isJoinRoomEvent(payload)) {
           const targetRoomName = payload.payload.roomName;
 
-          const currentRoomListeners = this.listeners[currentRoomName] || [];
+          const currentRoomListeners = this.getListeners(targetRoomName);
 
-          const targetRoomListeners = this.listeners[targetRoomName] || [];
+          const targetRoomListeners = this.getListeners(currentRoomName);
 
-          this.listeners[currentRoomName] = [...currentRoomListeners, ...targetRoomListeners];
+          await this.setListeners(targetRoomName, [
+            ...currentRoomListeners,
+            ...targetRoomListeners,
+          ]);
 
-          if (this.listeners[currentRoomName].length === 0) {
+          if (this.listeners[targetRoomName].length === 0) {
             return;
           }
 
-          await this.subscribeChannel(currentRoomName);
+          await this.subscribeChannel(targetRoomName);
 
           return;
         }
 
         // all sockets that belong targetRoom should be deleted from current room
-        if (this.isLeaveTargetRoomFromCurrentRoomEvent(payload)) {
+        if (this.isLeaveRoomEvent(payload)) {
           const targetRoomName = payload.payload.roomName;
-
-          const targetListeners = this.getListeners(targetRoomName);
-
-          const socketIdsFromTargetRoom = targetListeners.map(({ socketId }) => socketId);
 
           const currentListeners = this.getListeners(currentRoomName);
 
+          const socketIdsFromTargetRoom = currentListeners.map(({ socketId }) => socketId);
+
+          const targetListeners = this.getListeners(targetRoomName);
+
           // delete target sockets
-          const updatedCurrentListeners = currentListeners.filter(
+          const updatedCurrentListeners = targetListeners.filter(
             ({ socketId }) => !socketIdsFromTargetRoom.includes(socketId),
           );
 
-          await this.setListeners(currentRoomName, updatedCurrentListeners);
+          await this.setListeners(targetRoomName, updatedCurrentListeners);
 
           return;
         }
@@ -110,12 +118,6 @@ class RedisSub extends RedisBase implements IGetRedisInstance {
         console.error(err);
       }
     };
-  }
-
-  deleteListeners(socketId: string) {
-    for (const roomName in this.listeners) {
-      this.leaveSocket(roomName, socketId);
-    }
   }
 
   private async subscribeChannel(roomName: string) {
