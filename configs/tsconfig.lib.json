@@ -5,12 +5,15 @@
     "paths": {
       "resolve-pathname": [
         "./@types/resolve-pathname"
+      ],
+      "@sb/redis": [
+        "../packages/libraries/redis/src/index.ts"
       ]
     }
   },
   "references": [
     {
-      "path": "../packages/stub/tsconfig.json"
+      "path": "../packages/libraries/redis/tsconfig.json"
     }
   ]
 }
