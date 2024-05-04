@@ -5,9 +5,12 @@
     "paths": {
       "resolve-pathname": [
         "./@types/resolve-pathname"
-      ],
+      ]
     }
   },
   "references": [
+    {
+      "path": "../packages/stub/tsconfig.json"
+    }
   ]
 }
