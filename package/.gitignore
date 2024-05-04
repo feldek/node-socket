@@ -15,8 +15,5 @@ junit.xml
 !.yarn/sdks
 !.yarn/versions
 *tsbuildinfo
-.vscode/
-.fleet/
-/.idea/
 
-/packages/playerui/src/platformui/Themes/Starzbet/Components/Icons/UnionIcon/
+/package/playerui/src/platformui/Themes/Starzbet/Components/Icons/UnionIcon/
