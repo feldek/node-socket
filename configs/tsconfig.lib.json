@@ -6,8 +6,14 @@
       "resolve-pathname": [
         "./@types/resolve-pathname"
       ],
+      "@sb/stub/*": [
+        "../packages/stub/*"
+      ],
     }
   },
   "references": [
+    {
+      "path": "../packages/file-service/tsconfig.json"
+    },
   ]
 }
